@@ -113,6 +113,7 @@ const (
 	ViperKeySessionName                                      = "session.cookie.name"
 	ViperKeySessionPath                                      = "session.cookie.path"
 	ViperKeySessionPersistentCookie                          = "session.cookie.persistent"
+	ViperKeySessionCookieMaxAge                              = "session.cookie.max_age"
 	ViperKeySessionTokenizerTemplates                        = "session.whoami.tokenizer.templates"
 	ViperKeySessionWhoAmIAAL                                 = "session.whoami.required_aal"
 	ViperKeySessionWhoAmICaching                             = "feature_flags.cacheable_sessions"
@@ -1003,6 +1004,14 @@ func (p *Config) SessionLifespan(ctx context.Context) time.Duration {
 
 func (p *Config) SessionPersistentCookie(ctx context.Context) bool {
 	return p.GetProvider(ctx).Bool(ViperKeySessionPersistentCookie)
+}
+
+// SessionCookieMaxAge returns the max age for the session cookie.
+// If not set (0), the cookie max age will be calculated from the session expiry.
+// This allows setting a cookie max age that is longer than the session lifespan,
+// which is useful when session extension is enabled.
+func (p *Config) SessionCookieMaxAge(ctx context.Context) time.Duration {
+	return p.GetProvider(ctx).DurationF(ViperKeySessionCookieMaxAge, 0)
 }
 
 func (p *Config) SelfServiceBrowserAllowedReturnToDomains(ctx context.Context) (us []url.URL) {

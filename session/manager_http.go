@@ -170,7 +170,11 @@ func (s *ManagerHTTP) IssueCookie(ctx context.Context, w http.ResponseWriter, r 
 
 	cookie.Options.MaxAge = 0
 	if s.r.Config().SessionPersistentCookie(ctx) {
-		if session.ExpiresAt.IsZero() {
+		// Check if a custom cookie max age is configured
+		if cookieMaxAge := s.r.Config().SessionCookieMaxAge(ctx); cookieMaxAge > 0 {
+			// Use the configured cookie max age
+			cookie.Options.MaxAge = int(cookieMaxAge.Seconds())
+		} else if session.ExpiresAt.IsZero() {
 			cookie.Options.MaxAge = int(s.r.Config().SessionLifespan(ctx).Seconds())
 		} else {
 			cookie.Options.MaxAge = int(time.Until(session.ExpiresAt).Seconds())
